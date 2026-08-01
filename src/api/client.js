@@ -3,9 +3,10 @@ import axios from 'axios'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5050/api'
 
 const client = axios.create({
-  baseURL: API_BASE_URL,
-  headers: { 'Content-Type': 'application/json' }
+  baseURL: API_BASE_URL
 })
+client.defaults.headers.post['Content-Type'] = 'application/json'
+client.defaults.headers.put['Content-Type'] = 'application/json'
 
 export const entriesApi = {
   list: (params = {}) => client.get('/entries', { params }).then((r) => r.data),
