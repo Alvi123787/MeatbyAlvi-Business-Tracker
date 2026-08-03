@@ -23,8 +23,8 @@ const emptyForm = {
   orders: '',
   revenue: '',
   grossProfit: '',
-  deliveryCostPerOrder: '',
-  packagingCostPerOrder: '',
+  totalDeliveryCost: '',
+  totalPackagingCost: '',
   adsExpense: '',
   otherExpenses: '',
   notes: ''
@@ -55,8 +55,8 @@ const EntryForm = () => {
           orders: e.orders ?? '',
           revenue: e.revenue ?? '',
           grossProfit: e.grossProfit ?? '',
-          deliveryCostPerOrder: e.deliveryCostPerOrder ?? '',
-          packagingCostPerOrder: e.packagingCostPerOrder ?? '',
+          totalDeliveryCost: e.totalDeliveryCost ?? '',
+          totalPackagingCost: e.totalPackagingCost ?? '',
           adsExpense: e.adsExpense ?? '',
           otherExpenses: e.otherExpenses ?? '',
           notes: e.notes ?? ''
@@ -91,9 +91,8 @@ const EntryForm = () => {
 
   // ── Live-computed preview (mirrors backend/spreadsheet formulas exactly) ──
   const preview = useMemo(() => {
-    const orders = num(form.orders)
-    const totalDeliveryCost = orders * num(form.deliveryCostPerOrder)
-    const totalPackagingCost = orders * num(form.packagingCostPerOrder)
+    const totalDeliveryCost = num(form.totalDeliveryCost)
+    const totalPackagingCost = num(form.totalPackagingCost)
     const totalExpenses = totalDeliveryCost + totalPackagingCost + num(form.adsExpense) + num(form.otherExpenses)
     const netProfitLoss = num(form.grossProfit) - totalExpenses
     return { totalDeliveryCost, totalPackagingCost, totalExpenses, netProfitLoss }
@@ -109,8 +108,8 @@ const EntryForm = () => {
       orders: num(form.orders),
       revenue: num(form.revenue),
       grossProfit: num(form.grossProfit),
-      deliveryCostPerOrder: num(form.deliveryCostPerOrder),
-      packagingCostPerOrder: num(form.packagingCostPerOrder),
+      totalDeliveryCost: num(form.totalDeliveryCost),
+      totalPackagingCost: num(form.totalPackagingCost),
       adsExpense: num(form.adsExpense),
       otherExpenses: num(form.otherExpenses),
       notes: form.notes
@@ -217,36 +216,36 @@ const EntryForm = () => {
           </div>
         </div>
 
-        <p className="form-section-title">Delivery &amp; Packaging</p>
+        <p className="form-section-title">Daily Expenses</p>
         <div className="form-grid">
           <div className="form-group">
-            <label className="form-label" htmlFor="deliveryCostPerOrder">
-              <FaTruck /> Delivery Cost / Order
+            <label className="form-label" htmlFor="totalDeliveryCost">
+              <FaTruck /> Total Delivery Cost (Today)
             </label>
             <input
-              id="deliveryCostPerOrder"
+              id="totalDeliveryCost"
               type="number"
               min="0"
-              name="deliveryCostPerOrder"
+              name="totalDeliveryCost"
               className="form-input"
-              placeholder="e.g. 100"
-              value={form.deliveryCostPerOrder}
+              placeholder="e.g. 300"
+              value={form.totalDeliveryCost}
               onChange={handleChange}
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="packagingCostPerOrder">
-              <FaBoxOpen /> Packaging Cost / Order
+            <label className="form-label" htmlFor="totalPackagingCost">
+              <FaBoxOpen /> Total Packaging Cost (Today)
             </label>
             <input
-              id="packagingCostPerOrder"
+              id="totalPackagingCost"
               type="number"
               min="0"
-              name="packagingCostPerOrder"
+              name="totalPackagingCost"
               className="form-input"
-              placeholder="e.g. 30"
-              value={form.packagingCostPerOrder}
+              placeholder="e.g. 120"
+              value={form.totalPackagingCost}
               onChange={handleChange}
             />
           </div>

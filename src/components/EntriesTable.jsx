@@ -25,8 +25,8 @@ const EntriesTable = ({ entries, onEdit, onDelete }) => {
             <th>Orders</th>
             <th>Revenue</th>
             <th>Gross Profit</th>
-            <th>Delivery</th>
-            <th>Packaging</th>
+            <th>Total Delivery</th>
+            <th>Total Packaging</th>
             <th>Ads</th>
             <th>Other</th>
             <th>Total Expenses</th>
