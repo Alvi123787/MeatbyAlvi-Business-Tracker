@@ -75,6 +75,68 @@ const Dashboard = () => {
     setDateTo('')
   }
 
+  const handleExportCsv = () => {
+    if (!entries.length) {
+      toast.error('No entries available to export')
+      return
+    }
+
+    const headers = [
+      'Date',
+      'Orders',
+      'Revenue',
+      'Gross Profit',
+      'Delivery Cost/Order',
+      'Packaging Cost/Order',
+      'Delivery Cost',
+      'Packaging Cost',
+      'Ads Expense',
+      'Other Expenses',
+      'Total Expenses',
+      'Net Profit/Loss',
+      'Notes'
+    ]
+
+    const escapeCsvValue = (value) => {
+      const normalized = value ?? ''
+      const stringValue = String(normalized).replace(/"/g, '""')
+      return /[",\n]/.test(stringValue) ? `"${stringValue}"` : stringValue
+    }
+
+    const rows = entries.map((entry) => {
+      const dateValue = new Date(entry.date)
+      const formattedDate = Number.isNaN(dateValue.getTime()) ? '' : dateValue.toLocaleDateString('en-CA')
+
+      return [
+        escapeCsvValue(formattedDate),
+        escapeCsvValue(entry.orders ?? 0),
+        escapeCsvValue(entry.revenue ?? 0),
+        escapeCsvValue(entry.grossProfit ?? 0),
+        escapeCsvValue(entry.deliveryCostPerOrder ?? 0),
+        escapeCsvValue(entry.packagingCostPerOrder ?? 0),
+        escapeCsvValue(entry.totalDeliveryCost ?? 0),
+        escapeCsvValue(entry.totalPackagingCost ?? 0),
+        escapeCsvValue(entry.adsExpense ?? 0),
+        escapeCsvValue(entry.otherExpenses ?? 0),
+        escapeCsvValue(entry.totalExpenses ?? 0),
+        escapeCsvValue(entry.netProfitLoss ?? 0),
+        escapeCsvValue(entry.notes ?? '')
+      ].join(',')
+    })
+
+    const csvContent = [headers.join(','), ...rows].join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `daily-entries-${dateFrom || 'all'}-${dateTo || 'all'}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    toast.success('CSV export started')
+  }
+
   const netIsProfit = summary && summary.netProfitLoss >= 0
 
   return (
@@ -105,6 +167,9 @@ const Dashboard = () => {
               </button>
             )}
           </div>
+          <button className="btn btn-outline" onClick={handleExportCsv}>
+            Export CSV
+          </button>
           <button className="btn btn-primary" onClick={() => navigate('/add-entry')}>
             + Add Daily Entry
           </button>
