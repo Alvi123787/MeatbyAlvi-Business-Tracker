@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import {
@@ -30,7 +30,12 @@ const emptyForm = {
   notes: ''
 }
 
-const num = (v) => (v === '' || v === null || v === undefined ? 0 : Number(v))
+const parseNumericValue = (value) => {
+  if (value === '' || value === null || value === undefined) return 0
+  const normalizedValue = typeof value === 'string' ? value.trim() : value
+  const numericValue = Number(normalizedValue)
+  return Number.isNaN(numericValue) ? 0 : numericValue
+}
 
 const EntryForm = () => {
   const navigate = useNavigate()
@@ -42,6 +47,7 @@ const EntryForm = () => {
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(isEditMode)
   const [submitting, setSubmitting] = useState(false)
+  const submittingRef = useRef(false)
 
   useEffect(() => {
     if (!isEditMode) return
@@ -82,8 +88,8 @@ const EntryForm = () => {
   const validate = () => {
     const newErrors = {}
     if (!form.date) newErrors.date = 'Date is required'
-    if (form.orders === '' || Number(form.orders) < 0) newErrors.orders = 'Enter a valid number of orders'
-    if (form.revenue === '' || Number(form.revenue) < 0) newErrors.revenue = 'Enter valid revenue'
+    if (form.orders === '' || parseNumericValue(form.orders) < 0) newErrors.orders = 'Enter a valid number of orders'
+    if (form.revenue === '' || parseNumericValue(form.revenue) < 0) newErrors.revenue = 'Enter valid revenue'
     if (form.grossProfit === '') newErrors.grossProfit = "Enter today's gross profit"
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -91,28 +97,34 @@ const EntryForm = () => {
 
   // ── Live-computed preview (mirrors backend/spreadsheet formulas exactly) ──
   const preview = useMemo(() => {
-    const totalDeliveryCost = num(form.totalDeliveryCost)
-    const totalPackagingCost = num(form.totalPackagingCost)
-    const totalExpenses = totalDeliveryCost + totalPackagingCost + num(form.adsExpense) + num(form.otherExpenses)
-    const netProfitLoss = num(form.grossProfit) - totalExpenses
+    const totalDeliveryCost = parseNumericValue(form.totalDeliveryCost)
+    const totalPackagingCost = parseNumericValue(form.totalPackagingCost)
+    const totalExpenses = totalDeliveryCost + totalPackagingCost + parseNumericValue(form.adsExpense) + parseNumericValue(form.otherExpenses)
+    const netProfitLoss = parseNumericValue(form.grossProfit) - totalExpenses
     return { totalDeliveryCost, totalPackagingCost, totalExpenses, netProfitLoss }
   }, [form])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (submittingRef.current) return
     if (!validate()) return
 
+    submittingRef.current = true
     setSubmitting(true)
+
+    const formElement = e.currentTarget
+    const getFieldValue = (name) => formElement.elements.namedItem(name)?.value ?? ''
+
     const payload = {
-      date: form.date,
-      orders: num(form.orders),
-      revenue: num(form.revenue),
-      grossProfit: num(form.grossProfit),
-      totalDeliveryCost: num(form.totalDeliveryCost),
-      totalPackagingCost: num(form.totalPackagingCost),
-      adsExpense: num(form.adsExpense),
-      otherExpenses: num(form.otherExpenses),
-      notes: form.notes
+      date: getFieldValue('date'),
+      orders: parseNumericValue(getFieldValue('orders')),
+      revenue: parseNumericValue(getFieldValue('revenue')),
+      grossProfit: parseNumericValue(getFieldValue('grossProfit')),
+      totalDeliveryCost: parseNumericValue(getFieldValue('totalDeliveryCost')),
+      totalPackagingCost: parseNumericValue(getFieldValue('totalPackagingCost')),
+      adsExpense: parseNumericValue(getFieldValue('adsExpense')),
+      otherExpenses: parseNumericValue(getFieldValue('otherExpenses')),
+      notes: getFieldValue('notes')
     }
 
     try {
@@ -129,6 +141,7 @@ const EntryForm = () => {
       const message = err.response?.data?.message || 'Could not save entry'
       toast.error(message)
     } finally {
+      submittingRef.current = false
       setSubmitting(false)
     }
   }
@@ -172,6 +185,7 @@ const EntryForm = () => {
               id="orders"
               type="number"
               min="0"
+              step="any"
               name="orders"
               className={`form-input ${errors.orders ? 'form-input--error' : ''}`}
               placeholder="e.g. 2"
@@ -189,6 +203,7 @@ const EntryForm = () => {
               id="revenue"
               type="number"
               min="0"
+              step="any"
               name="revenue"
               className={`form-input ${errors.revenue ? 'form-input--error' : ''}`}
               placeholder="e.g. 15200"
@@ -205,6 +220,7 @@ const EntryForm = () => {
             <input
               id="grossProfit"
               type="number"
+              step="any"
               name="grossProfit"
               className={`form-input ${errors.grossProfit ? 'form-input--error' : ''}`}
               placeholder="e.g. 2600"
@@ -226,6 +242,7 @@ const EntryForm = () => {
               id="totalDeliveryCost"
               type="number"
               min="0"
+              step="any"
               name="totalDeliveryCost"
               className="form-input"
               placeholder="e.g. 300"
@@ -242,6 +259,7 @@ const EntryForm = () => {
               id="totalPackagingCost"
               type="number"
               min="0"
+              step="any"
               name="totalPackagingCost"
               className="form-input"
               placeholder="e.g. 120"
@@ -261,6 +279,7 @@ const EntryForm = () => {
               id="adsExpense"
               type="number"
               min="0"
+              step="any"
               name="adsExpense"
               className="form-input"
               placeholder="e.g. 800"
@@ -277,6 +296,7 @@ const EntryForm = () => {
               id="otherExpenses"
               type="number"
               min="0"
+              step="any"
               name="otherExpenses"
               className="form-input"
               placeholder="e.g. 80"
