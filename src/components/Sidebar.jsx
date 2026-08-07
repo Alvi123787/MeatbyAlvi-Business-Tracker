@@ -1,9 +1,13 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
-import { MdDashboard, MdPlaylistAdd } from 'react-icons/md'
+import { MdDashboard, MdPlaylistAdd, MdLogout } from 'react-icons/md'
 import { GiKnifeFork } from 'react-icons/gi'
+import ThemeSwitcher from './ThemeSwitcher'
+import { useAuth } from '../context/AuthContext'
 
 const Sidebar = () => {
+  const { logout } = useAuth()
+
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
@@ -39,6 +43,13 @@ const Sidebar = () => {
         <br />
         Track every day's numbers to see your real profit.
       </div>
+
+      <ThemeSwitcher />
+
+      <button type="button" className="sidebar-logout" onClick={logout}>
+        <MdLogout />
+        <span>Logout</span>
+      </button>
     </aside>
   )
 }

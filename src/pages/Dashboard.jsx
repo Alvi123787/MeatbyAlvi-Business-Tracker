@@ -137,10 +137,39 @@ const Dashboard = () => {
 
   return (
     <>
+      <div className="hero-banner">
+        <div className="hero-banner-inner">
+          <div>
+            <p className="hero-banner-eyebrow">Welcome back</p>
+            <h2>Business Dashboard</h2>
+            <p>A day-by-day view of your revenue, expenses, and real profit.</p>
+          </div>
+          <div className="hero-banner-stats">
+            <div className="hero-banner-stat">
+              <span>Total Revenue</span>
+              <span>{formatMoney(summary?.totalRevenue)}</span>
+            </div>
+            <div className="hero-banner-stat">
+              <span>Net Profit/Loss</span>
+              <span>
+                {netIsProfit ? '+' : ''}
+                {formatMoney(summary?.netProfitLoss)}
+              </span>
+            </div>
+            <div className="hero-banner-stat">
+              <span>Orders</span>
+              <span>{summary?.totalOrders || 0}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="page-header">
         <div>
-          <h2>Business Dashboard</h2>
-          <p>A day-by-day view of your revenue, expenses, and real profit.</p>
+          <h3 style={{ fontSize: 18, margin: 0 }}>Filters &amp; Entries</h3>
+          <p style={{ margin: '4px 0 0', fontSize: 12.5 }}>
+            Narrow the view by date, export, or add today's numbers.
+          </p>
         </div>
         <div className="page-header-actions">
           <div className="filter-bar">
@@ -150,7 +179,7 @@ const Dashboard = () => {
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
             />
-            <span style={{ color: '#7A6F63', fontSize: 13 }}>to</span>
+            <span style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>to</span>
             <input
               type="date"
               className="form-input"
@@ -223,10 +252,10 @@ const Dashboard = () => {
             />
             <StatCard
               label="Avg. Daily Profit"
-              value={`${summary?.avgDailyProfit >= 0 ? '+' : ''}${formatMoney(summary?.avgDailyProfit)}`}
+              value={`${(summary?.avgDailyProfit ?? 0) >= 0 ? '+' : ''}${formatMoney(summary?.avgDailyProfit)}`}
               icon={<MdTrendingUp />}
               accent="green"
-              valueTone={summary?.avgDailyProfit >= 0 ? 'profit' : 'loss'}
+              valueTone={(summary?.avgDailyProfit ?? 0) >= 0 ? 'profit' : 'loss'}
             />
             <StatCard
               label="Total Ads Spend"

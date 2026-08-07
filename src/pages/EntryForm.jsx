@@ -338,7 +338,7 @@ const EntryForm = () => {
             </div>
             <div className="live-preview-item">
               <span>Net Profit / Loss</span>
-              <span style={{ color: preview.netProfitLoss >= 0 ? '#1B4332' : '#6B0F0F' }}>
+              <span style={{ color: preview.netProfitLoss >= 0 ? 'var(--color-profit)' : 'var(--color-loss)' }}>
                 {preview.netProfitLoss >= 0 ? '+' : ''}
                 Rs. {preview.netProfitLoss.toLocaleString()}
               </span>

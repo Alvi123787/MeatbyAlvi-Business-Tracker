@@ -9,7 +9,7 @@ const EntriesTable = ({ entries, onEdit, onDelete }) => {
   if (!entries || entries.length === 0) {
     return (
       <div className="empty-state">
-        <MdReceiptLong size={36} style={{ marginBottom: 10, color: '#D4A017' }} />
+        <MdReceiptLong size={36} style={{ marginBottom: 10, color: 'var(--color-accent)' }} />
         <h3>No entries yet</h3>
         <p>Add your first daily entry to start seeing your profit/loss here.</p>
       </div>
@@ -53,7 +53,7 @@ const EntriesTable = ({ entries, onEdit, onDelete }) => {
                   {formatMoney(e.netProfitLoss)}
                 </span>
               </td>
-              <td style={{ maxWidth: 160, whiteSpace: 'normal', color: '#7A6F63' }}>
+              <td style={{ maxWidth: 160, whiteSpace: 'normal', color: 'var(--color-text-muted)' }}>
                 {e.notes || '—'}
               </td>
               <td>

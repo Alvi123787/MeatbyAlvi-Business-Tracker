@@ -1,12 +1,41 @@
 import axios from 'axios'
+import { API_BASE_URL } from './config.js'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5050/api'||'https://meatby-alvi-business-tracker-backend.vercel.app/api'
+const TOKEN_STORAGE_KEY = 'mba-dashboard-token'
 
 const client = axios.create({
   baseURL: API_BASE_URL
 })
 client.defaults.headers.post['Content-Type'] = 'application/json'
 client.defaults.headers.put['Content-Type'] = 'application/json'
+
+// Attach the saved auth token (if any) to every outgoing request.
+client.interceptors.request.use((config) => {
+  try {
+    const token = window.localStorage.getItem(TOKEN_STORAGE_KEY)
+    if (token) {
+      config.headers = config.headers || {}
+      config.headers.Authorization = `Bearer ${token}`
+    }
+  } catch (e) {
+    // localStorage unavailable — request goes out unauthenticated and the
+    // backend will correctly reject it with 401
+  }
+  return config
+})
+
+// If the backend says the session is missing/invalid/expired, broadcast an
+// event so AuthContext can clear the stored token and show the password gate
+// again — without api/client.js needing to import AuthContext directly.
+client.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      window.dispatchEvent(new Event('mba-auth-invalid'))
+    }
+    return Promise.reject(error)
+  }
+)
 
 export const entriesApi = {
   list: (params = {}) => client.get('/entries', { params }).then((r) => r.data),
